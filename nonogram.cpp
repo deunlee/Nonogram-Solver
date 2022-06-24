@@ -4,17 +4,17 @@
 #include <algorithm> // for sort()
 using namespace std;
 
-#define DEBUG
+// #define DEBUG
 
 #define CELL_UNSET  0 // must be zero (memset() can only fill with 0 or -1)
 #define CELL_FILLED 1
 #define CELL_EMPTY  2
 
-#define SYMBOL_UNKNOWN "  "
-#define SYMBOL_FILL    "██" // FULL BLOCK (U+2588)
+#define SYMBOL_UNSET   "  "
+#define SYMBOL_FILLLED "██" // FULL BLOCK (U+2588)
 #define SYMBOL_EMPTY   "··"
-// #define SYMBOL_FILL  "●"
-// #define SYMBOL_EMPTY "○"
+// #define SYMBOL_FILLLED "●"
+// #define SYMBOL_EMPTY   "○"
 
 #define LINE_ROW 1
 #define LINE_COL 2
@@ -58,7 +58,6 @@ private:
     int calc_line_dup_count(const char line[], const int line_len, const int pos, const int hints[], const int hint_cnt, const int hint_now, int dup_cnt[], int recur_cnt) const {
         int i, j, k, r = 0, remaining = 0;
         char temp[MAX_SIZE];
-        // cout << "pos=" << pos << ", hint_now=" << hint_now << ", recur_cnt=" << recur_cnt << "\n";
 
         if (hint_now == hint_cnt) {
             return is_line_right(line, line_len, hints, hint_cnt);
@@ -102,17 +101,15 @@ private:
     // Fill in the lines based on hints.
     bool fill_line(char line[], const int line_type, const int hints[], const int hint_cnt) {
         int i, line_len, dup_max, dup_cnt[MAX_SIZE] = { 0, };
-        bool* need_to_check, *curr;
+        bool* need_to_check;
         if (line_type == LINE_ROW) {
             line_len = width;
             need_to_check = col_need_to_check;
-            curr = row_need_to_check;
         } else {
             line_len = height;
             need_to_check = row_need_to_check;
-            curr = col_need_to_check;
         }
-        #define FILL(i, c) if (line[i] == CELL_UNSET) { line[i] = c; need_to_check[i] = true; remaining_cells--;  }//curr[i] = true;
+        #define FILL(i, c) if (line[i] == CELL_UNSET) { line[i] = c; need_to_check[i] = true; remaining_cells--; }
 
         // Check if all cells are empty or filled.
         // In other words, if there is only one hint and it's 0 or the length of the line.
@@ -130,9 +127,8 @@ private:
             }
         }
  
-        // CORE LOGIC
-        // 1) Try every possible case that can be filled with hints by backtracking.
-        // 2) Find out which cells are always filled or always empty.
+        // Try every possible case that can be filled with hints by backtracking.
+        // And find out which cells are always filled or always empty.
         dup_max = calc_line_dup_count(line, line_len, 0, hints, hint_cnt, 0, dup_cnt, 0);
         if (dup_max != -1) {
             for (i = 0; i < line_len; i++) {
@@ -161,7 +157,7 @@ private:
 public:
     Nonogram(int width, int height) : width(width), height(height) {
         if (width > MAX_SIZE || height > MAX_SIZE) { 
-            throw "Too large map size";
+            throw "too large map";
         }
         remaining_cells = width * height;
         memset(map, 0, sizeof(map)); // CELL_UNSET
@@ -183,8 +179,8 @@ public:
     }
 
     // Fill column array.
-    // Column array is stored discontinuous in memory, so they should be copied to a temporary array.
     bool fill_col(int idx) {
+        // Column array is stored discontinuous in memory, so they should be copied to a temporary array.
         char temp[MAX_SIZE];
         int i;
         if (is_col_filled[idx]) return true;
@@ -338,9 +334,9 @@ public:
                 if (map[i][j] == CELL_EMPTY) {
                     cout << SYMBOL_EMPTY;
                 } else if (map[i][j] == CELL_FILLED) {
-                    cout << SYMBOL_FILL;
+                    cout << SYMBOL_FILLLED;
                 } else {
-                    cout << SYMBOL_UNKNOWN;
+                    cout << SYMBOL_UNSET;
                 }
             }
             cout << "\n";
@@ -393,13 +389,17 @@ public:
 
 
 int main() {
-    int width, height;
-    cin >> width >> height;
-
-    Nonogram ng(width, height);
-    ng.input();
+    // int width, height;
+    // cin >> width >> height;
+    // Nonogram ng(width, height);
+    // ng.input();
+    // ng.solve();
+    // ng.print();
+    
+    Nonogram ng = Nonogram::load_file("test/flower.txt");
     ng.solve();
     ng.print();
+    ng.save_file("output.txt");
 
     return 0;
 }
