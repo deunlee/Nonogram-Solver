@@ -1,0 +1,21 @@
+[
+    // Build
+    {
+        "key": "ctrl+b",
+        "command": "workbench.action.tasks.build"
+    },
+    // Run
+    {
+        "key": "ctrl+r",
+        "command": "workbench.action.tasks.test"
+    },
+    // Replace keys for overlapping tasks
+    {
+        "key": "ctrl+shift+b",
+        "command": "workbench.action.toggleSidebarVisibility"
+    },
+    {
+        "key": "ctrl+shift+r",
+        "command": "workbench.action.openRecent"
+    },
+]
